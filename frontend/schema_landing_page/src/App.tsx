@@ -1,29 +1,27 @@
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import DashboardLayout from './layouts/DashboardLayout';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
-import BoardPage from './pages/BoardPage'; 
-import TemplatesPage from './pages/TemplatePage';
+import TemplatePage from './pages/TemplatePage';
 import ComponentsPage from './pages/ComponentsPage';
 import LayoutsPage from './pages/LayoutsPage';
+import CRMPage from './pages/CRMPage';
 import ConfigurationsPage from './pages/ConfigurationsPage';
-import CRMPage from './pages/CRMPage'; 
-function App() {
+
+const App = () => {
   return (
     <Router>
-      <DashboardLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/board" />} />  
-          <Route path="/board" element={<BoardPage />} />  
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/components" element={<ComponentsPage />} />
-          <Route path="/layouts" element={<LayoutsPage />} />
-          <Route path="/configurations" element={<ConfigurationsPage />} />
-          <Route path="/crm" element={<CRMPage />} />  
-        </Routes>
-      </DashboardLayout>
+      <Routes>
+        <Route path="/" element={<DashboardPage />}>
+          <Route path="templates" element={<TemplatePage />} />
+          <Route path="components" element={<ComponentsPage />} />
+          <Route path="layouts" element={<LayoutsPage />} />
+          <Route path="code" element={<div>Código</div>} />
+          <Route path="crm" element={<CRMPage />} />
+          <Route path="configs" element={<ConfigurationsPage />} />
+        </Route>
+      </Routes>
     </Router>
   );
-}
+};
 
 export default App;

@@ -1,34 +1,84 @@
 import React, { useState } from 'react';
-import { Box, Text } from '@chakra-ui/react';
-// import DraggableItem from '../components/DraggableItem';
-import DroppableArea from '../components/DrappableArea'; 
-
-// Definindo a interface para os componentes arrastáveis
-interface PageComponent {
-  id: string;
-  content: string;
-}
+import { Box, Text, Select, Input } from '@chakra-ui/react';
+import DroppableArea from '../components/DrappableArea';
 
 const BoardPage = () => {
-  const [pageComponents, setPageComponents] = useState<PageComponent[]>([]);
+  const [frameSize, setFrameSize] = useState('web');
+  const [frameColor, setFrameColor] = useState('#ffffff');
+  const [customWidth, setCustomWidth] = useState('1000px');
+  const [customHeight, setCustomHeight] = useState('800px');
 
-  // Função para lidar com a adição de componentes na área de drop
-  const handleDrop = (component: PageComponent) => {
-    setPageComponents([...pageComponents, component]);
+  const handleDrop = () => {
+    // Lógica para lidar com o drop
+    console.log('Componente solto no board');
+  };
+
+  const handleFrameSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFrameSize(e.target.value);
+  };
+
+  const getFrameDimensions = () => {
+    switch (frameSize) {
+      case 'mobile':
+        return { width: '375px', height: '667px' };
+      case 'tablet':
+        return { width: '768px', height: '1024px' };
+      case 'custom':
+        return { width: customWidth, height: customHeight };
+      default:
+        return { width: '1000px', height: '800px' };
+    }
   };
 
   return (
-    <Box p={6}>
-      <Text fontSize="2xl" mb={4}>Construa sua Landing Page</Text>
-
-      {/* Área de trabalho onde os componentes são soltos */}
-      <DroppableArea onDrop={handleDrop}>
-        {pageComponents.map((comp, index) => (
-          <Box key={index} p={4} bg="gray.50" border="1px dashed #ccc" mb={4}>
-            {comp.content}
+    <Box color="white">
+      <Box mb={4}>
+        <Text fontSize="lg">Escolha o Tamanho do Frame</Text>
+        <Select onChange={handleFrameSizeChange} value={frameSize}>
+          <option value="web">Web</option>
+          <option value="tablet">Tablet</option>
+          <option value="mobile">Mobile</option>
+          <option value="custom">Custom</option>
+        </Select>
+        {frameSize === 'custom' && (
+          <Box mt={2}>
+            <Input
+              placeholder="Largura (px)"
+              value={customWidth}
+              onChange={(e) => setCustomWidth(e.target.value)}
+              mb={2}
+            />
+            <Input
+              placeholder="Altura (px)"
+              value={customHeight}
+              onChange={(e) => setCustomHeight(e.target.value)}
+            />
           </Box>
-        ))}
-      </DroppableArea>
+        )}
+      </Box>
+
+      <Box mb={4}>
+        <Text fontSize="lg">Escolha a Cor do Frame</Text>
+        <Input
+          type="color"
+          value={frameColor}
+          onChange={(e) => setFrameColor(e.target.value)}
+        />
+      </Box>
+
+      <Box
+        bg={frameColor}
+        width={getFrameDimensions().width}
+        height={getFrameDimensions().height}
+        border="2px solid #ccc"
+        p={4}
+        borderRadius="lg"
+        overflow="hidden"
+      >
+        <DroppableArea onDrop={handleDrop}>
+          <Text color="black">Área de Trabalho (Board)</Text>
+        </DroppableArea>
+      </Box>
     </Box>
   );
 };

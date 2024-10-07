@@ -1,124 +1,242 @@
 import React, { useState } from 'react';
-import { Box, Text, Button } from '@chakra-ui/react';
-import DraggableItem from '../components/DraggableItem';
-import DroppableArea from '../components/DrappableArea';
-import CustomMenu from '../components/CustomMenu';
-import CustomForm from '../components/CustomForm';
-import CustomSlider from '../components/CustomSlider';
+import { Box, Text, Collapse } from '@chakra-ui/react';
+import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import Navbar from '../components/Navbar';
+import SidebarMenu from '../components/SidebarMenu';
+import WorkArea from '../components/WorkArea';
+import FrameSettings from '../components/FrameSettings';
 import ComponentSettingsPanel from '../components/ComponentSettingsPanel';
+import ExportCodeModal from '../components/ExportCodeModal';
+import ImportCodeModal from '../components/ImportCodeModal';
 
-interface PageComponent {
-  id: string;
-  content: string;
-  settings?: {
-    [key: string]: string | number | boolean;
-  };
-}
+import {
+  PageComponent,
+  PageComponentButton,
+  PageComponentTexto,
+  PageComponentImagem,
+  PageComponentMenu,
+  PageComponentVideo,
+} from '../types/types';
+
+import {
+  isPageComponentButton,
+  isPageComponentTexto,
+  isPageComponentImagem,
+  isPageComponentMenu,
+  isPageComponentVideo,
+} from '../types/typesGuards'; 
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const DashboardPage = () => {
   const [pageComponents, setPageComponents] = useState<PageComponent[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
+  const [frameSize, setFrameSize] = useState({ width: 800, height: 600 });
+  const [frameColor, setFrameColor] = useState('#ffffff'); // Reintroduzido o estado frameColor
+  const [isFrameSettingsOpen, setIsFrameSettingsOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('React');
 
-  const handleDrop = (component: PageComponent) => {
-    const newComponent = { ...component, id: Date.now().toString() }; 
-    setPageComponents([...pageComponents, newComponent]);
+  // Função para alterar o tamanho do frame
+  const handleFrameSizeChange = (width: number, height: number) => {
+    setFrameSize({ width, height });
   };
 
-  const handleUpdateComponent = (updatedComponent: PageComponent) => {
-    setPageComponents((prevComponents) =>
-      prevComponents.map((comp) =>
-        comp.id === updatedComponent.id ? updatedComponent : comp
-      )
-    );
-    setSelectedComponent(updatedComponent); 
+  // Função para alterar a cor do frame
+  const handleFrameColorChange = (color: string) => {
+    setFrameColor(color);
   };
 
-  const saveProject = () => {
-    localStorage.setItem('pageComponents', JSON.stringify(pageComponents));
-  };
+  // Evento de drop
+  const handleDrop = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-  const loadProject = () => {
-    const savedComponents = localStorage.getItem('pageComponents');
-    if (savedComponents) {
-      setPageComponents(JSON.parse(savedComponents));
+    if (over && over.id === 'droppable') {
+      const componentData = active.data.current?.component;
+      if (componentData) {
+        const newComponent: PageComponent = {
+          ...componentData,
+          id: Date.now().toString(),
+        };
+        setPageComponents([...pageComponents, newComponent]);
+      }
     }
   };
 
-  const [deviceView, setDeviceView] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  // Gerar código baseado na linguagem selecionada
+  const generateCode = () => {
+    return pageComponents
+      .map((comp) => {
+        switch (selectedLanguage) {
+          case 'React':
+            return generateReactCode(comp);
+          case 'Vue':
+            return generateVueCode(comp);
+          case 'Angular':
+            return generateAngularCode(comp);
+          default:
+            return '';
+        }
+      })
+      .join('\n');
+  };
 
-  const deviceStyles = {
-    mobile: { width: '375px', height: '667px' },
-    tablet: { width: '768px', height: '1024px' },
-    desktop: { width: '1440px', height: '900px' },
+  // Gerar código React
+  const generateReactCode = (comp: PageComponent): string => {
+    if (isPageComponentButton(comp)) {
+      const buttonComp = comp as PageComponentButton;
+      return `<button style={{ backgroundColor: '${buttonComp.settings.color}' }}>${buttonComp.settings.text}</button>`;
+    }
+    if (isPageComponentTexto(comp)) {
+      const textComp = comp as PageComponentTexto;
+      return `<p>${textComp.settings.text}</p>`;
+    }
+    if (isPageComponentImagem(comp)) {
+      const imageComp = comp as PageComponentImagem;
+      return `<img src="${imageComp.settings.src}" alt="Imagem" />`;
+    }
+    if (isPageComponentMenu(comp)) {
+      const menuComp = comp as PageComponentMenu;
+      return `<nav>\n  ${menuComp.settings.links
+        .map((link: string) => `<a href="#">${link}</a>`)
+        .join('\n  ')}\n</nav>`;
+    }
+    if (isPageComponentVideo(comp)) {
+      const videoComp = comp as PageComponentVideo;
+      return `<video controls src="${videoComp.settings.url}"></video>`;
+    }
+    return '';
+  };
+
+  // Gerar código Vue
+  const generateVueCode = (comp: PageComponent): string => {
+    if (isPageComponentButton(comp)) {
+      const buttonComp = comp as PageComponentButton;
+      return `<button :style="{ backgroundColor: '${buttonComp.settings.color}' }">${buttonComp.settings.text}</button>`;
+    }
+    if (isPageComponentTexto(comp)) {
+      const textComp = comp as PageComponentTexto;
+      return `<p>${textComp.settings.text}</p>`;
+    }
+    if (isPageComponentImagem(comp)) {
+      const imageComp = comp as PageComponentImagem;
+      return `<img :src="'${imageComp.settings.src}'" alt="Imagem" />`;
+    }
+    if (isPageComponentMenu(comp)) {
+      const menuComp = comp as PageComponentMenu;
+      return `<nav>\n  ${menuComp.settings.links
+        .map((link: string) => `<a href="#">${link}</a>`)
+        .join('\n  ')}\n</nav>`;
+    }
+    if (isPageComponentVideo(comp)) {
+      const videoComp = comp as PageComponentVideo;
+      return `<video controls :src="'${videoComp.settings.url}'"></video>`;
+    }
+    return '';
+  };
+
+  // Gerar código Angular
+  const generateAngularCode = (comp: PageComponent): string => {
+    if (isPageComponentButton(comp)) {
+      const buttonComp = comp as PageComponentButton;
+      return `<button [ngStyle]="{ 'background-color': '${buttonComp.settings.color}' }">${buttonComp.settings.text}</button>`;
+    }
+    if (isPageComponentTexto(comp)) {
+      const textComp = comp as PageComponentTexto;
+      return `<p>${textComp.settings.text}</p>`;
+    }
+    if (isPageComponentImagem(comp)) {
+      const imageComp = comp as PageComponentImagem;
+      return `<img [src]="'${imageComp.settings.src}'" alt="Imagem" />`;
+    }
+    if (isPageComponentMenu(comp)) {
+      const menuComp = comp as PageComponentMenu;
+      return `<nav>\n  ${menuComp.settings.links
+        .map((link: string) => `<a href="#">${link}</a>`)
+        .join('\n  ')}\n</nav>`;
+    }
+    if (isPageComponentVideo(comp)) {
+      const videoComp = comp as PageComponentVideo;
+      return `<video controls [src]="'${videoComp.settings.url}'"></video>`;
+    }
+    return '';
+  };
+
+  // Função para importar código
+  const importCode = (code: string) => {
+    try {
+      const importedComponents = JSON.parse(code) as PageComponent[];
+      setPageComponents(importedComponents);
+    } catch (error) {
+      console.error('Erro ao importar código:', error);
+      alert('Código inválido');
+    }
   };
 
   return (
-    <Box display="flex" p={6}>
-      {/* Menu lateral */}
-      <Box width="200px" bg="gray.700" p={4} color="white" borderRadius="lg">
-        <Text mb={4} fontSize="xl">Componentes</Text>
-        <DraggableItem id="button" content="Botão" />
-        <DraggableItem id="text" content="Texto" />
-        <DraggableItem id="menu" content="Menu" />
-        <DraggableItem id="form" content="Formulário" />
-        <DraggableItem id="slider" content="Slider" />
-        <DraggableItem id="input" content="Campo de Entrada" />
-        <DraggableItem id="select" content="Seleção" />
-      </Box>
+    <Box display="flex" flexDirection="column" height="100vh">
+      {/* Navbar */}
+      <Navbar
+        onExportModalOpen={() => setIsExportModalOpen(true)}
+        onImportModalOpen={() => setIsImportModalOpen(true)}
+        onFrameSettingsToggle={() => setIsFrameSettingsOpen(!isFrameSettingsOpen)}
+      />
+      <Box display="flex" flex="1" overflow="hidden">
+        {/* Sidebar */}
+        <SidebarMenu />
 
-      {/* Área de criação (board) */}
-      <Box
-        flex="1"
-        ml={4}
-        bg="gray.50"
-        p={4}
-        borderRadius="lg"
-        position="relative"
-        width={deviceStyles[deviceView].width}
-        height={deviceStyles[deviceView].height}
-      >
-        <DroppableArea onDrop={handleDrop}>
-          <Text fontSize="xl" mb={4}>Área de Criação</Text>
-          {pageComponents.map((comp, index) => (
-            <Box
-              key={index}
-              p={4}
-              bg="white"
-              border="1px solid #ccc"
-              mb={4}
-              onClick={() => setSelectedComponent(comp)}
-            >
-              {comp.content === 'Menu' && <CustomMenu items={['Home', 'Sobre', 'Contato']} />}
-              {comp.content === 'Formulário' && <CustomForm title="Contato" fields={['Nome', 'Email', 'Mensagem']} />}
-              {comp.content === 'Slider' && <CustomSlider images={['https://via.placeholder.com/400', 'https://via.placeholder.com/450']} />}
-              {comp.content}
-            </Box>
-          ))}
-        </DroppableArea>
-      </Box>
-
-      {/* Painel de Configurações */}
-      <Box width="300px" bg="gray.700" p={4} color="white" borderRadius="lg" ml={4}>
-        {selectedComponent && (
-          <ComponentSettingsPanel
-            component={selectedComponent}
-            onUpdate={handleUpdateComponent}
+        {/* Área Principal */}
+        <DndContext onDragEnd={handleDrop}>
+          <WorkArea
+            frameSize={frameSize}
+            frameColor={frameColor} // Passando frameColor para WorkArea
+            pageComponents={pageComponents}
+            setSelectedComponent={setSelectedComponent}
           />
-        )}
+        </DndContext>
+
+        {/* Painel de Configurações */}
+        <Box width="300px" bg="gray.700" p={4} color="white" borderRadius="lg" ml={4}>
+          <Text mb={4} fontSize="xl">
+            Configurações
+          </Text>
+          <Collapse in={isFrameSettingsOpen} animateOpacity>
+            <FrameSettings
+              onFrameSizeChange={handleFrameSizeChange}
+              onFrameColorChange={handleFrameColorChange} // Passando o manipulador aqui
+            />
+          </Collapse>
+          {selectedComponent && (
+            <ComponentSettingsPanel
+              component={selectedComponent}
+              onUpdate={(updatedComponent) => {
+                setPageComponents((prevComponents) =>
+                  prevComponents.map((comp) =>
+                    comp.id === updatedComponent.id ? updatedComponent : comp
+                  )
+                );
+                setSelectedComponent(updatedComponent);
+              }}
+            />
+          )}
+        </Box>
       </Box>
 
-      {/* Botões para salvar e carregar o projeto */}
-      <Box display="flex" p={6}>
-        <Button onClick={saveProject} colorScheme="blue" mr={2}>Salvar Projeto</Button>
-        <Button onClick={loadProject} colorScheme="green">Carregar Projeto</Button>
-      </Box>
-
-      {/* Botões para mudar visualização */}
-      <Box display="flex" p={6}>
-        <Button onClick={() => setDeviceView('mobile')}>Mobile</Button>
-        <Button onClick={() => setDeviceView('tablet')}>Tablet</Button>
-        <Button onClick={() => setDeviceView('desktop')}>Desktop</Button>
-      </Box>
+      {/* Modais de Exportação/Importação */}
+      <ExportCodeModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        code={generateCode()}
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={setSelectedLanguage}
+      />
+      <ImportCodeModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={importCode}
+      />
     </Box>
   );
 };

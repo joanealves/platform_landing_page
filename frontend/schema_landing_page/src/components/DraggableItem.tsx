@@ -1,31 +1,74 @@
-// src/components/DraggableItem.tsx
-import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import { Box } from '@chakra-ui/react';
+// DraggableItem.tsx
+import React from 'react';
+import {
+  PageComponent,
+  PageComponentButton,
+  PageComponentTexto,
+  PageComponentImagem,
+  PageComponentMenu,
+  PageComponentVideo,
+} from '../types/types';
 
 interface DraggableItemProps {
   id: string;
-  content: string;
+  content: PageComponent['content'];
 }
 
 const DraggableItem: React.FC<DraggableItemProps> = ({ id, content }) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-  const style = {
-    transform: CSS.Translate.toString(transform),
+  const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    let component: PageComponent;
+
+    switch (content) {
+      case 'Botão':
+        component = {
+          id,
+          content,
+          settings: { text: 'Clique Aqui', color: '#0000FF' },
+        } as PageComponentButton;
+        break;
+      case 'Texto':
+        component = {
+          id,
+          content,
+          settings: { text: 'Texto Padrão' },
+        } as PageComponentTexto;
+        break;
+      case 'Imagem':
+        component = {
+          id,
+          content,
+          settings: { src: 'https://via.placeholder.com/150' },
+        } as PageComponentImagem;
+        break;
+      case 'Menu':
+        component = {
+          id,
+          content,
+          settings: { links: ['Home', 'Sobre', 'Contato'] },
+        } as PageComponentMenu;
+        break;
+      case 'Vídeo':
+        component = {
+          id,
+          content,
+          settings: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+        } as PageComponentVideo;
+        break;
+      default:
+        component = {
+          id,
+          content,
+          settings: {},
+        } as PageComponent;
+    }
+
+    event.dataTransfer.setData('application/json', JSON.stringify(component));
   };
 
   return (
-    <Box
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={style}
-      p={4}
-      bg="gray.100"
-      border="1px solid #ccc"
-    >
+    <div draggable onDragStart={handleDragStart}>
       {content}
-    </Box>
+    </div>
   );
 };
 

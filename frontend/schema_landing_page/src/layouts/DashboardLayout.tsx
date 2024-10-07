@@ -1,22 +1,28 @@
-import React, { ReactNode } from 'react';
-import Navbar from '../components/Navbar';
-import Sidebar from '../components/Sidebar';
+import React from 'react';
+import { Box, Flex } from '@chakra-ui/react';
+import Navbar from '../components/Navbar';  
+import Sidebar from '../components/Sidebar'; 
+import RightPanel from '../components/RightPanel'; 
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <Box height="100vh" bg="gray.800" color="white">
+      {/* Menu Superior */}
       <Navbar />
-      <div style={{ display: 'flex' }}>
+
+      <Flex height="calc(100% - 60px)" padding="20px" gap="20px">
+        {/* Menu Lateral Esquerdo */}
         <Sidebar />
-        <div style={{ marginLeft: '250px', padding: '20px', flexGrow: 1 }}>
+
+        {/* Área Principal (Board) */}
+        <Box flex="1" bg="gray.900" p={4} borderRadius="lg" overflow="auto">
           {children}
-        </div>
-      </div>
-    </div>
+        </Box>
+
+        {/* Menu Lateral Direito (Painel de Configurações) */}
+        <RightPanel />
+      </Flex>
+    </Box>
   );
 };
 

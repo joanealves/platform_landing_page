@@ -1,4 +1,5 @@
-import { Box, Input, Button } from '@chakra-ui/react';
+// src/components/CustomForm.tsx
+import { Box, Input, Button, Heading } from '@chakra-ui/react';
 
 interface CustomFormProps {
   title: string;
@@ -8,7 +9,7 @@ interface CustomFormProps {
 const CustomForm: React.FC<CustomFormProps> = ({ title, fields }) => {
   return (
     <Box bg="gray.700" p={4} borderRadius="md" color="white">
-      <h2>{title}</h2>
+      <Heading size="md" mb={4}>{title}</Heading>
       {fields.map((field, index) => (
         <Input key={index} placeholder={field} mb={3} />
       ))}
