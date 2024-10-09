@@ -8,9 +8,11 @@ const BoardPage = () => {
   const [customWidth, setCustomWidth] = useState('1000px');
   const [customHeight, setCustomHeight] = useState('800px');
 
-  const handleDrop = () => {
-    // Lógica para lidar com o drop
-    console.log('Componente solto no board');
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const componentType = event.dataTransfer.getData('componentType');
+    console.log('Componente solto no board:', componentType);
+    // Aqui você pode adicionar a lógica para criar um novo componente
   };
 
   const handleFrameSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

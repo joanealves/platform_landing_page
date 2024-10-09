@@ -1,24 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
-import TemplatePage from './pages/TemplatePage';
-import ComponentsPage from './pages/ComponentsPage';
-import LayoutsPage from './pages/LayoutsPage';
-import CRMPage from './pages/CRMPage';
-import ConfigurationsPage from './pages/ConfigurationsPage';
+import { PageComponent } from './types/types';
 
 const App = () => {
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isFrameSettingsOpen, setIsFrameSettingsOpen] = useState(false);
+  const [pageComponents, setPageComponents] = useState<PageComponent[]>([]);
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<DashboardPage />}>
-          <Route path="templates" element={<TemplatePage />} />
-          <Route path="components" element={<ComponentsPage />} />
-          <Route path="layouts" element={<LayoutsPage />} />
-          <Route path="code" element={<div>Código</div>} />
-          <Route path="crm" element={<CRMPage />} />
-          <Route path="configs" element={<ConfigurationsPage />} />
-        </Route>
+        <Route path="/" element={
+          <DashboardLayout
+            onExportModalOpen={() => setIsExportModalOpen(true)}
+            onImportModalOpen={() => setIsImportModalOpen(true)}
+            onFrameSettingsToggle={() => setIsFrameSettingsOpen(!isFrameSettingsOpen)}
+            pageComponents={pageComponents}
+          >
+            <DashboardPage
+              isExportModalOpen={isExportModalOpen}
+              setIsExportModalOpen={setIsExportModalOpen}
+              isImportModalOpen={isImportModalOpen}
+              setIsImportModalOpen={setIsImportModalOpen}
+              isFrameSettingsOpen={isFrameSettingsOpen}
+              pageComponents={pageComponents}
+              setPageComponents={setPageComponents}
+            />
+          </DashboardLayout>
+        } />
+        {/* ... (outras rotas) */}
       </Routes>
     </Router>
   );

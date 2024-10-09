@@ -1,74 +1,39 @@
 // DraggableItem.tsx
 import React from 'react';
-import {
-  PageComponent,
-  PageComponentButton,
-  PageComponentTexto,
-  PageComponentImagem,
-  PageComponentMenu,
-  PageComponentVideo,
-} from '../types/types';
+import { Box, Text, Icon } from '@chakra-ui/react';
+import { DragHandleIcon } from '@chakra-ui/icons';
 
 interface DraggableItemProps {
   id: string;
-  content: PageComponent['content'];
+  type: string;
+  label: string;
+  icon?: React.ElementType;
 }
 
-const DraggableItem: React.FC<DraggableItemProps> = ({ id, content }) => {
+const DraggableItem: React.FC<DraggableItemProps> = ({ id, type, label, icon }) => {
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    let component: PageComponent;
-
-    switch (content) {
-      case 'Botão':
-        component = {
-          id,
-          content,
-          settings: { text: 'Clique Aqui', color: '#0000FF' },
-        } as PageComponentButton;
-        break;
-      case 'Texto':
-        component = {
-          id,
-          content,
-          settings: { text: 'Texto Padrão' },
-        } as PageComponentTexto;
-        break;
-      case 'Imagem':
-        component = {
-          id,
-          content,
-          settings: { src: 'https://via.placeholder.com/150' },
-        } as PageComponentImagem;
-        break;
-      case 'Menu':
-        component = {
-          id,
-          content,
-          settings: { links: ['Home', 'Sobre', 'Contato'] },
-        } as PageComponentMenu;
-        break;
-      case 'Vídeo':
-        component = {
-          id,
-          content,
-          settings: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        } as PageComponentVideo;
-        break;
-      default:
-        component = {
-          id,
-          content,
-          settings: {},
-        } as PageComponent;
-    }
-
-    event.dataTransfer.setData('application/json', JSON.stringify(component));
+    event.dataTransfer.setData('application/json', JSON.stringify({ id, type }));
+    event.dataTransfer.effectAllowed = 'move';
   };
 
   return (
-    <div draggable onDragStart={handleDragStart}>
-      {content}
-    </div>
+    <Box
+      draggable
+      onDragStart={handleDragStart}
+      bg="white"
+      p={2}
+      borderRadius="md"
+      boxShadow="md"
+      display="flex"
+      alignItems="center"
+      cursor="move"
+      _hover={{ bg: 'gray.100' }}
+      transition="background-color 0.2s"
+    >
+      <Icon as={DragHandleIcon} mr={2} color="gray.500" />
+      {icon && <Icon as={icon} mr={2} />}
+      <Text>{label}</Text>
+    </Box>
   );
 };
 

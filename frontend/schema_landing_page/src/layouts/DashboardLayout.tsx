@@ -1,26 +1,38 @@
 import React from 'react';
 import { Box, Flex } from '@chakra-ui/react';
-import Navbar from '../components/Navbar';  
-import Sidebar from '../components/Sidebar'; 
-import RightPanel from '../components/RightPanel'; 
+import Navbar from '../components/Navbar';
+import SidebarMenu from '../components/SidebarMenu';
+import RightPanel from '../components/RightPanel';
+import { PageComponent } from '../types/types'; // Adicione esta linha
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  onExportModalOpen: () => void;
+  onImportModalOpen: () => void;
+  onFrameSettingsToggle: () => void;
+  pageComponents: PageComponent[]; // Agora PageComponent está definido
+}
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  children,
+  onExportModalOpen,
+  onImportModalOpen,
+  onFrameSettingsToggle,
+  pageComponents
+}) => {
   return (
-    <Box height="100vh" bg="gray.800" color="white">
-      {/* Menu Superior */}
-      <Navbar />
-
-      <Flex height="calc(100% - 60px)" padding="20px" gap="20px">
-        {/* Menu Lateral Esquerdo */}
-        <Sidebar />
-
-        {/* Área Principal (Board) */}
-        <Box flex="1" bg="gray.900" p={4} borderRadius="lg" overflow="auto">
+    <Box height="100vh" bg="#1F2937">
+      <Navbar 
+        onExportModalOpen={onExportModalOpen}
+        onImportModalOpen={onImportModalOpen}
+        onFrameSettingsToggle={onFrameSettingsToggle}
+      />
+      <Flex height="calc(100% - 60px)">
+        <SidebarMenu />
+        <Box flex="1" position="relative" overflow="auto">
           {children}
         </Box>
-
-        {/* Menu Lateral Direito (Painel de Configurações) */}
-        <RightPanel />
+        <RightPanel pageComponents={pageComponents} />
       </Flex>
     </Box>
   );

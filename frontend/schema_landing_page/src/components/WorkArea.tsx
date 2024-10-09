@@ -1,22 +1,20 @@
 // src/components/WorkArea.tsx
 
-import React from 'react';
-import { Box, Text, Button } from '@chakra-ui/react';
-import DroppableArea from './DrappableArea';
+import React, { useState } from 'react';
+import { Box, Button } from '@chakra-ui/react';
 import { PageComponent } from '../types/types';
-import {
-  isPageComponentButton,
-  isPageComponentTexto,
-  isPageComponentImagem,
-  isPageComponentMenu,
-  isPageComponentVideo,
-} from '../types/typesGuards';
+import Frame from './Frame';
+import DroppableArea from './DrappableArea';
 
 interface WorkAreaProps {
   frameSize: { width: number; height: number };
   frameColor: string;
   pageComponents: PageComponent[];
-  setSelectedComponent: (component: PageComponent) => void;
+  setSelectedComponent: (component: PageComponent | null) => void;
+  onDrop: (componentData: { id: string; type: string; position: { x: number; y: number } }) => void;
+  onUpdateComponent: (updatedComponent: PageComponent) => void;
+  onCopyComponent: (component: PageComponent) => void;
+  onPasteComponent: () => void;
 }
 
 const WorkArea: React.FC<WorkAreaProps> = ({
@@ -24,67 +22,45 @@ const WorkArea: React.FC<WorkAreaProps> = ({
   frameColor,
   pageComponents,
   setSelectedComponent,
+  onDrop,
+  onUpdateComponent,
+  onCopyComponent,
+  onPasteComponent
 }) => {
+  const [frames, setFrames] = useState([{ id: 'default', width: frameSize.width, height: frameSize.height }]);
+
+  const addFrame = () => {
+    setFrames([...frames, { id: Date.now().toString(), width: frameSize.width, height: frameSize.height }]);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    onDrop({ id: Date.now().toString(), type: 'unknown', position: { x, y } });
+  };
+
   return (
-    <Box
-      flex="1"
-      ml={4}
-      bg="gray.900"
-      p={4}
-      borderRadius="lg"
-      position="relative"
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      overflow="hidden"
-    >
-      <Box
-        width={`${frameSize.width}px`}
-        height={`${frameSize.height}px`}
-        bg={frameColor}
-        position="relative"
-        overflow="auto"
-        border="2px dashed #ccc"
-      >
-        <DroppableArea>
-          <Text fontSize="xl" mb={4}>
-            Área de Criação
-          </Text>
-          {pageComponents.map((comp) => (
-            <Box
-              key={comp.id}
-              p={4}
-              bg="white"
-              border="1px solid #ccc"
-              mb={4}
-              onClick={() => setSelectedComponent(comp)}
-            >
-              {/* Renderização específica do componente */}
-              {isPageComponentButton(comp) && (
-                <Button style={{ backgroundColor: comp.settings.color }}>
-                  {comp.settings.text}
-                </Button>
-              )}
-              {isPageComponentTexto(comp) && <Text>{comp.settings.text}</Text>}
-              {isPageComponentImagem(comp) && (
-                <img src={comp.settings.src} alt="Imagem" style={{ maxWidth: '100%' }} />
-              )}
-              {isPageComponentMenu(comp) && (
-                <nav>
-                  {comp.settings.links.map((link: string, index: number) => (
-                    <a key={index} href="#" style={{ marginRight: '10px' }}>
-                      {link}
-                    </a>
-                  ))}
-                </nav>
-              )}
-              {isPageComponentVideo(comp) && (
-                <video controls src={comp.settings.url} style={{ maxWidth: '100%' }}></video>
-              )}
-            </Box>
-          ))}
-        </DroppableArea>
-      </Box>
+    <Box width="100%" height="100%" position="relative" overflow="auto">
+      <DroppableArea onDrop={handleDrop}>
+        {frames.map((frame) => (
+          <Frame 
+            key={frame.id} 
+            width={frame.width} 
+            height={frame.height} 
+            pageComponents={pageComponents}
+            setSelectedComponent={setSelectedComponent}
+            onUpdateComponent={onUpdateComponent}
+            onCopyComponent={onCopyComponent}
+          />
+        ))}
+      </DroppableArea>
+      <Button position="fixed" bottom="80px" right="20px" onClick={addFrame}>
+        Add Frame
+      </Button>
+      <Button position="fixed" bottom="80px" right="150px" onClick={onPasteComponent}>
+        Paste
+      </Button>
     </Box>
   );
 };

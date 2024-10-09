@@ -1,21 +1,20 @@
-// src/components/DroppableArea.tsx
-
 import React from 'react';
-import { useDroppable } from '@dnd-kit/core';
 
 interface DroppableAreaProps {
   children: React.ReactNode;
+  onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
 }
 
-const DroppableArea: React.FC<DroppableAreaProps> = ({ children }) => {
-  const { setNodeRef } = useDroppable({
-    id: 'droppable',
-  });
+const DroppableArea: React.FC<DroppableAreaProps> = ({ children, onDrop }) => {
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
 
   return (
     <div
-      ref={setNodeRef}
-      style={{ minHeight: '200px', border: '2px dashed #ccc', padding: '16px' }}
+      onDragOver={handleDragOver}
+      onDrop={onDrop}
+      style={{ width: '100%', height: '100%', position: 'relative' }}
     >
       {children}
     </div>

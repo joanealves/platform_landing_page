@@ -1,49 +1,93 @@
 // src/types/types.ts
 
-export interface PageComponentButton {
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface BasePageComponent {
   id: string;
-  content: 'Botão';
+  type: string;
+  position: Position;
+  size: {
+    width: number;
+    height: number;
+  };
+  zIndex: number;
+}
+
+export interface PageComponentButton extends BasePageComponent {
+  type: 'button';
   settings: {
     text: string;
     color: string;
   };
 }
 
-export interface PageComponentTexto {
-  id: string;
-  content: 'Texto';
+export interface PageComponentTexto extends BasePageComponent {
+  type: 'text';
   settings: {
     text: string;
   };
 }
 
-export interface PageComponentImagem {
-  id: string;
-  content: 'Imagem';
+export interface PageComponentImagem extends BasePageComponent {
+  type: 'image';
   settings: {
     src: string;
   };
 }
 
-export interface PageComponentMenu {
-  id: string;
-  content: 'Menu';
+export interface PageComponentMenu extends BasePageComponent {
+  type: 'menu';
   settings: {
     links: string[];
   };
 }
 
-export interface PageComponentVideo {
-  id: string;
-  content: 'Vídeo';
+export interface PageComponentVideo extends BasePageComponent {
+  type: 'video';
   settings: {
     url: string;
   };
 }
 
-export type PageComponent =
-  | PageComponentButton
-  | PageComponentTexto
-  | PageComponentImagem
-  | PageComponentMenu
-  | PageComponentVideo;
+export interface PageComponentForm extends BasePageComponent {
+  type: 'form';
+  settings: {
+    fields: Array<{
+      type: 'text' | 'email' | 'number' | 'checkbox';
+      label: string;
+      required: boolean;
+    }>;
+    submitButtonText: string;
+  };
+}
+
+export interface PageComponentCarousel extends BasePageComponent {
+  type: 'carousel';
+  settings: {
+    images: string[];
+    autoPlay: boolean;
+    interval: number;
+  };
+}
+
+export interface PageComponentMap extends BasePageComponent {
+  type: 'map';
+  settings: {
+    latitude: number;
+    longitude: number;
+    zoom: number;
+  };
+}
+
+export type PageComponent = 
+  PageComponentButton | 
+  PageComponentTexto | 
+  PageComponentImagem | 
+  PageComponentMenu | 
+  PageComponentVideo |
+  PageComponentForm |
+  PageComponentCarousel |
+  PageComponentMap;
