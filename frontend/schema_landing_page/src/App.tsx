@@ -5,8 +5,11 @@ import MainLayout from './layouts/MainLayout';
 import BoardPage from './pages/BoardPage';
 import LayoutsPage from './pages/LayoutsPage';
 import ComponentsPage from './pages/ComponentsPage';
-import TemplatePage from './pages/TemplatePage';
-import ConfigPage from './pages/ConfigPage'; // Você precisará criar este componente
+import TemplatesPage from './pages/TemplatesPage';
+import EditTemplatePage from './pages/EditTemplatePage';
+import ConfigPage from './pages/ConfigPage';
+import ImportCode from './components/ImportCode';
+import ExportCode from './components/ExportCode';
 
 const App: React.FC = () => {
   return (
@@ -18,8 +21,11 @@ const App: React.FC = () => {
             <Route path="/board" element={<BoardPage />} />
             <Route path="/layouts" element={<LayoutsPage />} />
             <Route path="/components" element={<ComponentsPage />} />
-            <Route path="/templates" element={<TemplatePage />} />
-            <Route path="/config" element={<ConfigPage />} /> {/* Nova rota */}
+            <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/edit-template/:id" element={<EditTemplatePage />} />
+            <Route path="/config" element={<ConfigPage />} />
+            <Route path="/code/import" element={<ImportCode />} />
+            <Route path="/code/export" element={<ExportCode />} />
           </Routes>
         </MainLayout>
       </Router>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Flex } from '@chakra-ui/react';
 import Sidebar from '../components/Sidebar';
-import RightPanel from '../components/RightPanel';
 import TopNavbar from '../components/TopNavbar';
 import BottomToolbar from '../components/BottomToolbar';
 
@@ -21,7 +20,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </Box>
           <BottomToolbar />
         </Box>
-        <RightPanel selectedComponent={null} onUpdateComponent={() => {}} />
       </Flex>
     </Flex>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, VStack, Text, Icon, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
-import { FiLayout, FiBox, FiCode, FiSettings } from 'react-icons/fi';
+import { FiLayout, FiBox, FiCode, FiSettings, FiFileText, FiDownload, FiUpload } from 'react-icons/fi';
 
 const SidebarItem = ({ icon, label, children }) => (
   <AccordionItem border="none">
@@ -23,11 +23,18 @@ const SidebarItem = ({ icon, label, children }) => (
 const Sidebar = () => {
   return (
     <Box width="250px" height="100%" bg="#1F2937" color="#E5E7EB" borderRight="1px solid #374151" display="flex" flexDirection="column">
-      <Accordion allowMultiple flex={1}>
+      <Accordion allowMultiple defaultIndex={[0]} flex={1}>
         <SidebarItem icon={FiLayout} label="Frame">
           <VStack align="stretch" spacing={3}>
             <NavLink to="/board">
               <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Board</Text>
+            </NavLink>
+          </VStack>
+        </SidebarItem>
+        <SidebarItem icon={FiFileText} label="Templates">
+          <VStack align="stretch" spacing={3}>
+            <NavLink to="/templates">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Browse Templates</Text>
             </NavLink>
           </VStack>
         </SidebarItem>
@@ -40,8 +47,17 @@ const Sidebar = () => {
         </SidebarItem>
         <SidebarItem icon={FiCode} label="Code">
           <VStack align="stretch" spacing={3}>
-            <NavLink to="/code">
-              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Code Editor</Text>
+            <NavLink to="/code/import">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>
+                <Icon as={FiUpload} mr={2} />
+                Import Code
+              </Text>
+            </NavLink>
+            <NavLink to="/code/export">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>
+                <Icon as={FiDownload} mr={2} />
+                Export Code
+              </Text>
             </NavLink>
           </VStack>
         </SidebarItem>

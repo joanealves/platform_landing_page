@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   VStack,
@@ -11,85 +11,159 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Button,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from '@chakra-ui/react';
-import { PageComponent } from '../types/types';
 
-interface RightPanelProps {
-  selectedComponent: PageComponent | null;
-  onUpdateComponent: (updatedComponent: PageComponent) => void;
+interface Component {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  content?: string;
+  style?: {
+    fontSize?: number;
+    fontWeight?: string;
+    color?: string;
+    backgroundColor?: string;
+    borderRadius?: number;
+    padding?: number;
+    textAlign?: string;
+  };
+  zIndex?: number;
 }
 
-const RightPanel: React.FC<RightPanelProps> = ({ selectedComponent, onUpdateComponent }) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ width: 1200, height: 1000 });
-  const [fill, setFill] = useState('#FFFFFF');
-  const [overflow, setOverflow] = useState('Hidden');
+interface RightPanelProps {
+  selectedComponent: Component | null;
+  onUpdateComponent: (updatedComponent: Component) => void;
+  onDuplicateComponent: (component: Component) => void;
+  onDeleteComponent: (componentId: string) => void;
+}
 
-  const handlePositionChange = (axis: 'x' | 'y', value: string) => {
-    const newPosition = { ...position, [axis]: parseInt(value) || 0 };
-    setPosition(newPosition);
-    if (selectedComponent) {
-      onUpdateComponent({ ...selectedComponent, position: newPosition });
-    }
+const RightPanel: React.FC<RightPanelProps> = ({
+  selectedComponent,
+  onUpdateComponent,
+  onDuplicateComponent,
+  onDeleteComponent,
+}) => {
+  if (!selectedComponent) {
+    return (
+      <Box width="250px" height="100%" bg="#1F2937" color="#E5E7EB" borderLeft="1px solid #374151" p={4}>
+        <Text>Select a component to edit its properties</Text>
+      </Box>
+    );
+  }
+
+  const handleChange = (key: string, value: any) => {
+    onUpdateComponent({
+      ...selectedComponent,
+      [key]: value,
+    });
   };
 
-  const handleSizeChange = (dimension: 'width' | 'height', value: string) => {
-    const newSize = { ...size, [dimension]: parseInt(value) || 0 };
-    setSize(newSize);
-    if (selectedComponent) {
-      onUpdateComponent({ ...selectedComponent, size: newSize });
-    }
+  const handleStyleChange = (key: string, value: any) => {
+    onUpdateComponent({
+      ...selectedComponent,
+      style: {
+        ...selectedComponent.style,
+        [key]: value,
+      },
+    });
   };
 
   return (
-    <Box width="250px" height="100%" bg="#1F2937" color="#E5E7EB" borderLeft="1px solid #374151" p={4}>
+    <Box width="250px" height="100%" bg="#1F2937" color="#E5E7EB" borderLeft="1px solid #374151" p={4} overflowY="auto">
       <VStack spacing={4} align="stretch">
         <Text fontSize="lg" fontWeight="bold">Properties</Text>
         
         <Box>
-          <Text mb={2}>Breakpoint</Text>
+          <Text mb={2}>Position</Text>
           <HStack>
-            <Input
-              placeholder="X"
-              value={position.x}
-              onChange={(e) => handlePositionChange('x', e.target.value)}
+            <NumberInput
+              value={selectedComponent.position.x}
+              onChange={(_, value) => handleChange('position', { ...selectedComponent.position, x: value })}
               size="sm"
-            />
-            <Input
-              placeholder="Y"
-              value={position.y}
-              onChange={(e) => handlePositionChange('y', e.target.value)}
+            >
+              <NumberInputField placeholder="X" />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <NumberInput
+              value={selectedComponent.position.y}
+              onChange={(_, value) => handleChange('position', { ...selectedComponent.position, y: value })}
               size="sm"
-            />
+            >
+              <NumberInputField placeholder="Y" />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
           </HStack>
         </Box>
 
         <Box>
           <Text mb={2}>Size</Text>
           <HStack>
+            <NumberInput
+              value={selectedComponent.size.width}
+              onChange={(_, value) => handleChange('size', { ...selectedComponent.size, width: value })}
+              size="sm"
+            >
+              <NumberInputField placeholder="Width" />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <NumberInput
+              value={selectedComponent.size.height}
+              onChange={(_, value) => handleChange('size', { ...selectedComponent.size, height: value })}
+              size="sm"
+            >
+              <NumberInputField placeholder="Height" />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </HStack>
+        </Box>
+
+        {selectedComponent.type === 'text' && (
+          <Box>
+            <Text mb={2}>Content</Text>
             <Input
-              placeholder="Width"
-              value={size.width}
-              onChange={(e) => handleSizeChange('width', e.target.value)}
+              value={selectedComponent.content || ''}
+              onChange={(e) => handleChange('content', e.target.value)}
               size="sm"
             />
-            <Select size="sm" defaultValue="Fixed">
-              <option value="Fixed">Fixed</option>
-              <option value="Auto">Auto</option>
-            </Select>
-          </HStack>
-          <HStack mt={2}>
-            <Input
-              placeholder="Height"
-              value={size.height}
-              onChange={(e) => handleSizeChange('height', e.target.value)}
-              size="sm"
-            />
-            <Select size="sm" defaultValue="Fixed">
-              <option value="Fixed">Fixed</option>
-              <option value="Auto">Auto</option>
-            </Select>
-          </HStack>
+          </Box>
+        )}
+
+        <Box>
+          <Text mb={2}>Z-Index</Text>
+          <NumberInput
+            value={selectedComponent.zIndex || 0}
+            onChange={(_, value) => handleChange('zIndex', value)}
+            size="sm"
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
         </Box>
 
         <Accordion allowMultiple>
@@ -97,88 +171,113 @@ const RightPanel: React.FC<RightPanelProps> = ({ selectedComponent, onUpdateComp
             <h2>
               <AccordionButton>
                 <Box flex="1" textAlign="left">
-                  Layout
+                  Style
                 </Box>
                 <AccordionIcon />
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
-              {/* Layout options */}
-            </AccordionPanel>
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Cursor
+              <VStack spacing={3} align="stretch">
+                <Box>
+                  <Text mb={2}>Font Size</Text>
+                  <Slider
+                    min={8}
+                    max={72}
+                    step={1}
+                    value={selectedComponent.style?.fontSize || 16}
+                    onChange={(value) => handleStyleChange('fontSize', value)}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                  </Slider>
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              {/* Cursor options */}
-            </AccordionPanel>
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Effects
+                <Box>
+                  <Text mb={2}>Font Weight</Text>
+                  <Select
+                    value={selectedComponent.style?.fontWeight || 'normal'}
+                    onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                    size="sm"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                  </Select>
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              {/* Effects options */}
-            </AccordionPanel>
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Styles
+                <Box>
+                  <Text mb={2}>Color</Text>
+                  <Input
+                    type="color"
+                    value={selectedComponent.style?.color || '#000000'}
+                    onChange={(e) => handleStyleChange('color', e.target.value)}
+                    size="sm"
+                  />
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <Text mb={2}>Fill</Text>
-              <Input
-                type="color"
-                value={fill}
-                onChange={(e) => setFill(e.target.value)}
-                size="sm"
-              />
-              <Text mt={2} mb={2}>Overflow</Text>
-              <Select
-                value={overflow}
-                onChange={(e) => setOverflow(e.target.value)}
-                size="sm"
-              >
-                <option value="Hidden">Hidden</option>
-                <option value="Visible">Visible</option>
-                <option value="Scroll">Scroll</option>
-              </Select>
-            </AccordionPanel>
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Code Overrides
+                <Box>
+                  <Text mb={2}>Background Color</Text>
+                  <Input
+                    type="color"
+                    value={selectedComponent.style?.backgroundColor || '#FFFFFF'}
+                    onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
+                    size="sm"
+                  />
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              {/* Code override options */}
+                <Box>
+                  <Text mb={2}>Border Radius</Text>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={selectedComponent.style?.borderRadius || 0}
+                    onChange={(value) => handleStyleChange('borderRadius', value)}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                  </Slider>
+                </Box>
+                <Box>
+                  <Text mb={2}>Padding</Text>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={selectedComponent.style?.padding || 0}
+                    onChange={(value) => handleStyleChange('padding', value)}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                  </Slider>
+                </Box>
+                <Box>
+                  <Text mb={2}>Text Align</Text>
+                  <Select
+                    value={selectedComponent.style?.textAlign || 'left'}
+                    onChange={(e) => handleStyleChange('textAlign', e.target.value)}
+                    size="sm"
+                  >
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                    <option value="justify">Justify</option>
+                  </Select>
+                </Box>
+              </VStack>
             </AccordionPanel>
           </AccordionItem>
         </Accordion>
+
+        <HStack spacing={2}>
+          <Button colorScheme="blue" onClick={() => onDuplicateComponent(selectedComponent)}>
+            Duplicate
+          </Button>
+          <Button colorScheme="red" onClick={() => onDeleteComponent(selectedComponent.id)}>
+            Delete
+          </Button>
+        </HStack>
       </VStack>
     </Box>
   );
