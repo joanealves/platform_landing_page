@@ -1,65 +1,74 @@
-import React from 'react';
-import { VStack, Accordion, AccordionItem, AccordionButton, AccordionPanel, Box, Button } from '@chakra-ui/react';
-import { AddIcon, EditIcon, AtSignIcon, ViewIcon, CalendarIcon, InfoIcon, CopyIcon } from '@chakra-ui/icons';
+import React, { useState } from 'react';
+import { VStack, Box, Text, Icon, Collapse, Button } from '@chakra-ui/react';
+import { FaRegFileAlt, FaRegImage, FaRegObjectGroup, FaRegClone, FaCode, FaCog } from 'react-icons/fa';
+import { PageComponent } from '../types/types';
 import DraggableItem from './DraggableItem';
+import CodeExporter from './CodeExporter';
+import FrameSettings from './FrameSettings';
 
-const SidebarMenu: React.FC = () => {
+interface SidebarMenuProps {
+  pageComponents: PageComponent[];
+  onFrameSizeChange: (width: number, height: number) => void;
+  onFrameColorChange: (color: string) => void;
+}
+
+const SidebarMenu: React.FC<SidebarMenuProps> = ({ pageComponents, onFrameSizeChange, onFrameColorChange }) => {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
+  const menuItems = [
+    { icon: FaRegFileAlt, label: 'FRAME', content: <FrameSettings onFrameSizeChange={onFrameSizeChange} onFrameColorChange={onFrameColorChange} /> },
+    { icon: FaRegImage, label: 'ASSETS', content: <Text>Assets content here</Text> },
+    { icon: FaRegObjectGroup, label: 'COMPONENTS', content: (
+      <>
+        <DraggableItem id="button" type="button" label="Botão" icon={FaRegObjectGroup} />
+        <DraggableItem id="text" type="text" label="Texto" icon={FaRegObjectGroup} />
+        <DraggableItem id="image" type="image" label="Imagem" icon={FaRegObjectGroup} />
+      </>
+    ) },
+    { icon: FaRegClone, label: 'LAYOUTS', content: <Text>Layouts content here</Text> },
+    { icon: FaCode, label: 'CODE', content: <CodeExporter components={pageComponents} /> },
+    { icon: FaCog, label: 'CONFIG', content: <Text>Config content here</Text> },
+  ];
+
+  const toggleMenu = (label: string) => {
+    setActiveMenu(activeMenu === label ? null : label);
+  };
+
   return (
-    <VStack spacing={0} align="stretch" bg="#111827" width="250px" height="100%" color="#E5E7EB">
-      <Accordion allowMultiple>
-        <AccordionItem>
-          <AccordionButton py={2} _hover={{ bg: '#1F2937' }}>
-            <Box flex="1" textAlign="left">Frame</Box>
-          </AccordionButton>
-          <AccordionPanel pb={2}>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>Configurações</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>Visualização</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start">Tamanhos</Button>
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionButton py={2} _hover={{ bg: '#1F2937' }}>
-            <Box flex="1" textAlign="left">Components</Box>
-          </AccordionButton>
-          <AccordionPanel pb={2}>
-            <DraggableItem id="button" type="button" label="Botão" icon={AddIcon} />
-            <DraggableItem id="text" type="text" label="Texto" icon={EditIcon} />
-            <DraggableItem id="image" type="image" label="Imagem" icon={AtSignIcon} />
-            <DraggableItem id="form" type="form" label="Formulário" icon={ViewIcon} />
-            <DraggableItem id="carousel" type="carousel" label="Carrossel" icon={CalendarIcon} />
-            <DraggableItem id="map" type="map" label="Mapa" icon={InfoIcon} />
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionButton py={2} _hover={{ bg: '#1F2937' }}>
-            <Box flex="1" textAlign="left">CRM</Box>
-          </AccordionButton>
-          <AccordionPanel pb={2}>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>Carrinho</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>SEO</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start">Dados</Button>
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionButton py={2} _hover={{ bg: '#1F2937' }}>
-            <Box flex="1" textAlign="left">Code</Box>
-          </AccordionButton>
-          <AccordionPanel pb={2}>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>Exportar</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start">Importar</Button>
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionButton py={2} _hover={{ bg: '#1F2937' }}>
-            <Box flex="1" textAlign="left">Templates</Box>
-          </AccordionButton>
-          <AccordionPanel pb={2}>
-            <Button variant="ghost" width="100%" justifyContent="flex-start" mb={1}>Gerenciar Templates</Button>
-            <Button variant="ghost" width="100%" justifyContent="flex-start">Criar Novo Template</Button>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
-    </VStack>
+    <Box display="flex" height="100%">
+      <VStack
+        spacing={0}
+        align="stretch"
+        bg="#111827"
+        width="80px"
+        height="100%"
+        color="#E5E7EB"
+        py={4}
+      >
+        {menuItems.map((item, index) => (
+          <Box
+            key={index}
+            py={4}
+            px={2}
+            _hover={{ bg: '#1F2937' }}
+            cursor="pointer"
+            textAlign="center"
+            onClick={() => toggleMenu(item.label)}
+            bg={activeMenu === item.label ? '#1F2937' : 'transparent'}
+          >
+            <Icon as={item.icon} w={6} h={6} mb={2} />
+            <Text fontSize="xs">{item.label}</Text>
+          </Box>
+        ))}
+      </VStack>
+      <Box width="200px" bg="#1F2937" p={4} overflowY="auto">
+        {menuItems.map((item, index) => (
+          <Collapse key={index} in={activeMenu === item.label}>
+            {item.content}
+          </Collapse>
+        ))}
+      </Box>
+    </Box>
   );
 };
 

@@ -1,10 +1,9 @@
 // src/components/WorkArea.tsx
 
-import React, { useState } from 'react';
-import { Box, Button } from '@chakra-ui/react';
+import React from 'react';
+import { Box } from '@chakra-ui/react';
 import { PageComponent } from '../types/types';
 import Frame from './Frame';
-import DroppableArea from './DrappableArea';
 
 interface WorkAreaProps {
   frameSize: { width: number; height: number };
@@ -13,8 +12,6 @@ interface WorkAreaProps {
   setSelectedComponent: (component: PageComponent | null) => void;
   onDrop: (componentData: { id: string; type: string; position: { x: number; y: number } }) => void;
   onUpdateComponent: (updatedComponent: PageComponent) => void;
-  onCopyComponent: (component: PageComponent) => void;
-  onPasteComponent: () => void;
 }
 
 const WorkArea: React.FC<WorkAreaProps> = ({
@@ -23,16 +20,8 @@ const WorkArea: React.FC<WorkAreaProps> = ({
   pageComponents,
   setSelectedComponent,
   onDrop,
-  onUpdateComponent,
-  onCopyComponent,
-  onPasteComponent
+  onUpdateComponent
 }) => {
-  const [frames, setFrames] = useState([{ id: 'default', width: frameSize.width, height: frameSize.height }]);
-
-  const addFrame = () => {
-    setFrames([...frames, { id: Date.now().toString(), width: frameSize.width, height: frameSize.height }]);
-  };
-
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -41,26 +30,23 @@ const WorkArea: React.FC<WorkAreaProps> = ({
   };
 
   return (
-    <Box width="100%" height="100%" position="relative" overflow="auto">
-      <DroppableArea onDrop={handleDrop}>
-        {frames.map((frame) => (
-          <Frame 
-            key={frame.id} 
-            width={frame.width} 
-            height={frame.height} 
-            pageComponents={pageComponents}
-            setSelectedComponent={setSelectedComponent}
-            onUpdateComponent={onUpdateComponent}
-            onCopyComponent={onCopyComponent}
-          />
-        ))}
-      </DroppableArea>
-      <Button position="fixed" bottom="80px" right="20px" onClick={addFrame}>
-        Add Frame
-      </Button>
-      <Button position="fixed" bottom="80px" right="150px" onClick={onPasteComponent}>
-        Paste
-      </Button>
+    <Box 
+      width="100%" 
+      height="100%" 
+      display="flex" 
+      justifyContent="center" 
+      alignItems="center" 
+      bg="gray.100"
+    >
+      <Frame
+        width={frameSize.width}
+        height={frameSize.height}
+        pageComponents={pageComponents}
+        setSelectedComponent={setSelectedComponent}
+        onUpdateComponent={onUpdateComponent}
+        onDrop={handleDrop}
+        backgroundColor={frameColor}
+      />
     </Box>
   );
 };

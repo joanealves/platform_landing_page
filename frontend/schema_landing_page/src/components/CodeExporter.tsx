@@ -16,7 +16,10 @@ const CodeExporter: React.FC<CodeExporterProps> = ({ components }) => {
   }, [framework, components]);
 
   const generateReactCode = (components: PageComponent[]): string => {
-    // Implementação para gerar código React
+    if (!components || components.length === 0) {
+      return '// No components to render';
+    }
+
     return `
 import React from 'react';
 
@@ -31,7 +34,7 @@ const LandingPage = () => {
             return `<p>${component.settings.text}</p>`;
           // Adicione casos para outros tipos de componentes
           default:
-            return '';
+            return `{/* Unsupported component type: ${component.type} */}`;
         }
       }).join('\n      ')}
     </div>
@@ -104,8 +107,11 @@ export class LandingPageComponent { }
         return generateVueCode(components);
       case 'angular':
         return generateAngularCode(components);
+      default:
+        return '// Unsupported framework';
     }
   };
+  
 
   return (
     <Box>

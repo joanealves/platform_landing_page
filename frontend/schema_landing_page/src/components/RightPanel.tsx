@@ -1,13 +1,7 @@
 import React from 'react';
-import { Box, Text, Input, Select, Accordion, AccordionItem, AccordionButton, AccordionPanel } from '@chakra-ui/react';
-import CodeExporter from './CodeExporter';
-import { PageComponent } from '../types/types';
+import { Box, VStack, Text, Input, Select, Accordion, AccordionItem, AccordionButton, AccordionPanel } from '@chakra-ui/react';
 
-interface RightPanelProps {
-  pageComponents: PageComponent[];
-}
-
-const RightPanel: React.FC<RightPanelProps> = ({ pageComponents }) => {
+const RightPanel: React.FC = () => {
   return (
     <Box width="250px" bg="#1F2937" p={4} color="#E5E7EB">
       <Accordion allowMultiple>
@@ -49,22 +43,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ pageComponents }) => {
             <Input placeholder="Padding" bg="#374151" />
           </AccordionPanel>
         </AccordionItem>
-        <AccordionItem>
-          <AccordionButton>
-            <Text fontWeight="bold">Code</Text>
-          </AccordionButton>
-          <AccordionPanel>
-            <CodeExporter components={pageComponents} />
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionButton>
-            <Text fontWeight="bold">Templates</Text>
-          </AccordionButton>
-          <AccordionPanel>
-            {/* <TemplateManager /> */}
-          </AccordionPanel>
-        </AccordionItem>
+                
       </Accordion>
     </Box>
   );
