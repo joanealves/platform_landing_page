@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box } from '@chakra-ui/react';
 import WorkArea from '../components/WorkArea';
 import ExportCodeModal from '../components/ExportCodeModal';
 import ImportCodeModal from '../components/ImportCodeModal';
+import ToolBar from '../components/ToolBar';
 import { PageComponent } from '../types/types';
 
 interface DashboardPageProps {
@@ -14,6 +15,7 @@ interface DashboardPageProps {
   setPageComponents: React.Dispatch<React.SetStateAction<PageComponent[]>>;
   frameSize: { width: number; height: number };
   frameColor: string;
+  setSelectedComponent: (component: PageComponent | null) => void;
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({
@@ -24,48 +26,30 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   pageComponents,
   setPageComponents,
   frameSize,
-  frameColor
+  frameColor,
+  setSelectedComponent
 }) => {
-  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState('React');
-
-  const handleDrop = (componentData: { id: string; type: string; position: { x: number; y: number } }) => {
-    // Implemente a lógica de drop aqui
-  };
-
-  const handleUpdateComponent = (updatedComponent: PageComponent) => {
-    setPageComponents(prevComponents =>
-      prevComponents.map(comp => comp.id === updatedComponent.id ? updatedComponent : comp)
-    );
-  };
-
   return (
-    <Box height="100%" width="100%">
-      <WorkArea
-        frameSize={frameSize}
-        frameColor={frameColor}
-        pageComponents={pageComponents}
-        setSelectedComponent={setSelectedComponent}
-        onDrop={handleDrop}
-        onUpdateComponent={handleUpdateComponent}
-      />
+    <Box height="100%" width="100%" display="flex" flexDirection="column">
+      <ToolBar />
+      <Box flex="1" overflow="auto" bg="#1F2937" p={4}>
+        <WorkArea
+          frameSize={frameSize}
+          frameColor={frameColor}
+          pageComponents={pageComponents}
+          setPageComponents={setPageComponents}
+          setSelectedComponent={setSelectedComponent}
+        />
+      </Box>
       <ExportCodeModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         code={JSON.stringify(pageComponents, null, 2)}
-        selectedLanguage={selectedLanguage}
-        onLanguageChange={setSelectedLanguage}
       />
       <ImportCodeModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onImport={(importedComponents) => {
-          if (Array.isArray(importedComponents)) {
-            setPageComponents(importedComponents);
-          } else {
-            console.error('Imported data is not an array:', importedComponents);
-          }
-        }}
+        onImport={(importedComponents) => setPageComponents(importedComponents)}
       />
     </Box>
   );

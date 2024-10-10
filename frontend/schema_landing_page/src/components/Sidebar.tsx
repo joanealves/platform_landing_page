@@ -1,32 +1,58 @@
-import { Box, Text, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { Box, VStack, Text, Icon, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
+import { FiLayout, FiBox, FiCode, FiSettings } from 'react-icons/fi';
+
+const SidebarItem = ({ icon, label, children }) => (
+  <AccordionItem border="none">
+    <h2>
+      <AccordionButton py={4} _hover={{ bg: '#374151' }}>
+        <Box flex="1" textAlign="left" display="flex" alignItems="center">
+          <Icon as={icon} boxSize={6} mr={3} />
+          <Text fontSize="sm" fontWeight="medium">{label}</Text>
+        </Box>
+        <AccordionIcon />
+      </AccordionButton>
+    </h2>
+    <AccordionPanel pb={4} pl={10}>
+      {children}
+    </AccordionPanel>
+  </AccordionItem>
+);
 
 const Sidebar = () => {
   return (
-    <Box bg="gray.900" p={4} width="250px" color="white" height="100vh" borderRadius="lg">
-      <VStack align="start" spacing={4}>
-        <NavLink to="/board">
-          <Text>Frame</Text>
-        </NavLink>
-        <NavLink to="/templates">
-          <Text>Templates</Text>
-        </NavLink>
-        <NavLink to="/components">
-          <Text>Components</Text>
-        </NavLink>
-        <NavLink to="/layouts">
-          <Text>Layouts</Text>
-        </NavLink>
-        <NavLink to="/code">
-          <Text>Code</Text>
-        </NavLink>
-        <NavLink to="/crm">
-          <Text>CRM</Text>
-        </NavLink>
-        <NavLink to="/configurations">
-          <Text>Configs</Text>
-        </NavLink>
-      </VStack>
+    <Box width="250px" height="100%" bg="#1F2937" color="#E5E7EB" borderRight="1px solid #374151" display="flex" flexDirection="column">
+      <Accordion allowMultiple flex={1}>
+        <SidebarItem icon={FiLayout} label="Frame">
+          <VStack align="stretch" spacing={3}>
+            <NavLink to="/board">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Board</Text>
+            </NavLink>
+          </VStack>
+        </SidebarItem>
+        <SidebarItem icon={FiBox} label="Components">
+          <VStack align="stretch" spacing={3}>
+            <NavLink to="/components">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>All Components</Text>
+            </NavLink>
+          </VStack>
+        </SidebarItem>
+        <SidebarItem icon={FiCode} label="Code">
+          <VStack align="stretch" spacing={3}>
+            <NavLink to="/code">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Code Editor</Text>
+            </NavLink>
+          </VStack>
+        </SidebarItem>
+        <SidebarItem icon={FiSettings} label="Config">
+          <VStack align="stretch" spacing={3}>
+            <NavLink to="/config">
+              <Text fontSize="sm" _hover={{ color: 'blue.300' }}>Settings</Text>
+            </NavLink>
+          </VStack>
+        </SidebarItem>
+      </Accordion>
     </Box>
   );
 };

@@ -1,5 +1,7 @@
 // src/types/types.ts
 
+import { ReactNode } from 'react';
+
 export interface Position {
   x: number;
   y: number;
@@ -91,3 +93,11 @@ export type PageComponent =
   PageComponentForm |
   PageComponentCarousel |
   PageComponentMap;
+
+export interface PageComponent {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  content: ReactNode;
+}

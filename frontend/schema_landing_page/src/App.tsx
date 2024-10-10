@@ -1,62 +1,29 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Box, Flex, VStack } from '@chakra-ui/react';
-import DashboardPage from './pages/DashboardPage';
-import SidebarMenu from './components/SidebarMenu';
-import RightPanel from './components/RightPanel';
-import TopNavbar from './components/TopNavbar';
-import BottomToolbar from './components/BottomToolbar';
-import { PageComponent } from './types/types';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { ChakraProvider } from '@chakra-ui/react';
+import MainLayout from './layouts/MainLayout';
+import BoardPage from './pages/BoardPage';
+import LayoutsPage from './pages/LayoutsPage';
+import ComponentsPage from './pages/ComponentsPage';
+import TemplatePage from './pages/TemplatePage';
+import ConfigPage from './pages/ConfigPage'; // Você precisará criar este componente
 
-const App = () => {
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [pageComponents, setPageComponents] = useState<PageComponent[]>([]);
-  const [frameSize, setFrameSize] = useState({ width: 800, height: 600 });
-  const [frameColor, setFrameColor] = useState('#ffffff');
-
-  const handleFrameSizeChange = (width: number, height: number) => {
-    setFrameSize({ width, height });
-  };
-
-  const handleFrameColorChange = (color: string) => {
-    setFrameColor(color);
-  };
-
+const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={
-          <VStack height="100vh" width="100vw" spacing={0}>
-            <TopNavbar />
-            <Flex flex={1} width="100%" overflow="hidden">
-              <SidebarMenu
-                pageComponents={pageComponents}
-                onFrameSizeChange={handleFrameSizeChange}
-                onFrameColorChange={handleFrameColorChange}
-              />
-              <Box flex={1} height="100%" overflowY="auto" bg="#1F2937" display="flex" flexDirection="column">
-                <Box flex={1} overflowY="auto">
-                  <DashboardPage
-                    isExportModalOpen={isExportModalOpen}
-                    setIsExportModalOpen={setIsExportModalOpen}
-                    isImportModalOpen={isImportModalOpen}
-                    setIsImportModalOpen={setIsImportModalOpen}
-                    pageComponents={pageComponents}
-                    setPageComponents={setPageComponents}
-                    frameSize={frameSize}
-                    frameColor={frameColor}
-                  />
-                </Box>
-                <BottomToolbar />
-              </Box>
-              <RightPanel />
-            </Flex>
-          </VStack>
-        } />
-        {/* ... (outras rotas) */}
-      </Routes>
-    </Router>
+    <ChakraProvider>
+      <Router>
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<Navigate to="/board" replace />} />
+            <Route path="/board" element={<BoardPage />} />
+            <Route path="/layouts" element={<LayoutsPage />} />
+            <Route path="/components" element={<ComponentsPage />} />
+            <Route path="/templates" element={<TemplatePage />} />
+            <Route path="/config" element={<ConfigPage />} /> {/* Nova rota */}
+          </Routes>
+        </MainLayout>
+      </Router>
+    </ChakraProvider>
   );
 };
 

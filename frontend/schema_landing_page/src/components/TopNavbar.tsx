@@ -1,55 +1,31 @@
 import React from 'react';
-import { Flex, Box, Button, Icon, Spacer, Avatar, useBreakpointValue } from '@chakra-ui/react';
-import { FaPlus, FaRegFileAlt } from 'react-icons/fa';
+import { Flex, Button, Image, HStack, IconButton } from '@chakra-ui/react';
+import { FiPlus, FiLayout } from 'react-icons/fi';
+import { FaRegUserCircle } from 'react-icons/fa';
 
 const TopNavbar: React.FC = () => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
   return (
-    <Flex
-      as="nav"
-      align="center"
-      justify="space-between"
-      wrap="wrap"
-      padding="1rem"
-      bg="#374151"
-      color="white"
-      width="100%"
-    >
-      <Flex align="center" mr={5}>
-        <Icon as={FaRegFileAlt} w={6} h={6} mr={2} />
-        <Box fontWeight="bold">Untitled</Box>
-      </Flex>
-      
-      {!isMobile && (
-        <Flex>
-          <Button leftIcon={<FaPlus />} variant="outline" size="sm" mr={2}>
-            Insert
-          </Button>
-          <Button variant="outline" size="sm" mr={2}>
-            Templates
-          </Button>
-        </Flex>
-      )}
-      
-      <Spacer />
-      
-      <Flex align="center">
-        {!isMobile && (
-          <>
-            <Button variant="ghost" size="sm" mr={2}>
-              Invite
-            </Button>
-            <Button variant="ghost" size="sm" mr={2}>
-              Share
-            </Button>
-          </>
-        )}
-        <Button colorScheme="blue" size="sm" mr={4}>
-          Publish
+    <Flex as="nav" align="center" justify="space-between" wrap="wrap" padding="0.5rem 1rem" bg="#374151" color="white">
+      <HStack spacing={4}>
+        <Image src="/path-to-your-logo.png" alt="Logo" height="30px" />
+        <Button leftIcon={<FiPlus />} variant="ghost" size="sm">
+          Insert
         </Button>
-        <Avatar size="sm" name="User" src="https://bit.ly/broken-link" />
-      </Flex>
+        <Button leftIcon={<FiLayout />} variant="ghost" size="sm">
+          Templates
+        </Button>
+      </HStack>
+      <HStack spacing={4}>
+        <Button variant="ghost" size="sm">Invite</Button>
+        <Button variant="ghost" size="sm">Share</Button>
+        <Button colorScheme="blue" size="sm">Publish</Button>
+        <IconButton
+          icon={<FaRegUserCircle />}
+          variant="ghost"
+          aria-label="User profile"
+          size="sm"
+        />
+      </HStack>
     </Flex>
   );
 };

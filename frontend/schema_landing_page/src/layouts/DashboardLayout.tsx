@@ -1,16 +1,18 @@
 import React from 'react';
 import { Box, Flex } from '@chakra-ui/react';
 import Navbar from '../components/Navbar';
-import SidebarMenu from '../components/SidebarMenu';
+import Sidebar from '../components/Sidebar'; // Alterado de SidebarMenu para Sidebar
 import RightPanel from '../components/RightPanel';
-import { PageComponent } from '../types/types'; // Adicione esta linha
+import { PageComponent } from '../types/types';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   onExportModalOpen: () => void;
   onImportModalOpen: () => void;
   onFrameSettingsToggle: () => void;
-  pageComponents: PageComponent[]; // Agora PageComponent está definido
+  pageComponents: PageComponent[];
+  selectedComponent: PageComponent | null;
+  onUpdateComponent: (updatedComponent: PageComponent) => void;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -18,21 +20,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onExportModalOpen,
   onImportModalOpen,
   onFrameSettingsToggle,
-  pageComponents
+  pageComponents,
+  selectedComponent,
+  onUpdateComponent
 }) => {
   return (
-    <Box height="100vh" bg="#1F2937">
+    <Box height="100vh" width="100vw" overflow="hidden">
       <Navbar 
         onExportModalOpen={onExportModalOpen}
         onImportModalOpen={onImportModalOpen}
         onFrameSettingsToggle={onFrameSettingsToggle}
       />
-      <Flex height="calc(100% - 60px)">
-        <SidebarMenu />
-        <Box flex="1" position="relative" overflow="auto">
+      <Flex height="calc(100vh - 60px)">
+        <Sidebar />
+        <Box flex="1" overflow="auto">
           {children}
         </Box>
-        <RightPanel pageComponents={pageComponents} />
+        <RightPanel 
+          selectedComponent={selectedComponent}
+          onUpdateComponent={onUpdateComponent}
+        />
       </Flex>
     </Box>
   );
