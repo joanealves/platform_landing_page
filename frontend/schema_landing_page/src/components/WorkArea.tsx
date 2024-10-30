@@ -1,6 +1,6 @@
 // src/components/WorkArea.tsx
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Box, Button, HStack, VStack, Text, Flex, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from '@chakra-ui/react';
 import { useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,6 +48,12 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
       }
     },
   }));
+
+  useEffect(() => {
+    if (workAreaRef.current) {
+      drop(workAreaRef.current);
+    }
+  }, [drop]);
 
   const addComponent = useCallback((type: string, x: number, y: number) => {
     const newComponent: Component = {
@@ -143,10 +149,7 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
           </NumberInput>
         </HStack>
         <Box
-          ref={(node) => {
-            workAreaRef.current = node;
-            drop(node);
-          }}
+          ref={workAreaRef}
           flex={1}
           width="100%"
           bg="white"
