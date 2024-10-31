@@ -2,30 +2,23 @@
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Box, Button, HStack, VStack, Text, Flex, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from '@chakra-ui/react';
+import { Rnd } from 'react-rnd';
 import { useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import DraggableComponent from './DraggableComponent';
 import { FiAlignLeft, FiAlignCenter, FiAlignRight, FiLayers, FiGrid } from 'react-icons/fi';
-
-interface Component {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-  content?: string;
-  style?: {
-    [key: string]: string | number;
-  };
-  zIndex?: number;
-}
+import { PageComponent, PageComponentButton, PageComponentTexto, PageComponentImagem, PageComponentMenu, PageComponentVideo, PageComponentForm, PageComponentCarousel, PageComponentMap } from '../types/types';
 
 interface WorkAreaProps {
-  components: Component[];
-  onUpdateComponents: (components: Component[]) => void;
-  onSelectComponent: (component: Component | null) => void;
+  components: PageComponent[];
+  onUpdateComponents: (components: PageComponent[]) => void;
+  onSelectComponent: (component: PageComponent | null) => void;
+  frameSize: { width: number; height: number };
+  setFrameSize: (size: { width: number; height: number }) => void;
+  frameColor: string;
 }
 
-const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onSelectComponent }) => {
+const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onSelectComponent, frameSize, setFrameSize, frameColor }) => {
   const workAreaRef = useRef<HTMLDivElement>(null);
   const [showGrid, setShowGrid] = useState(true);
   const [showLayers, setShowLayers] = useState(false);
@@ -34,7 +27,7 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
 
   const [, drop] = useDrop(() => ({
     accept: ['component', 'existingComponent'],
-    drop: (item: { type: string; id?: string }, monitor) => {
+    drop: (item: { type: PageComponent['type']; id?: string }, monitor) => {
       const offset = monitor.getClientOffset();
       const workAreaRect = workAreaRef.current?.getBoundingClientRect();
       if (offset && workAreaRect) {
@@ -55,16 +48,40 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
     }
   }, [drop]);
 
-  const addComponent = useCallback((type: string, x: number, y: number) => {
-    const newComponent: Component = {
-      id: uuidv4(),
-      type,
-      position: { x, y },
-      size: { width: 200, height: 100 },
-      content: type === 'text' ? 'New Text' : undefined,
-    };
+  const addComponent = useCallback((type: PageComponent['type'], x: number, y: number) => {
+    const newComponent: PageComponent = createNewComponent(type, x, y);
     onUpdateComponents([...components, newComponent]);
   }, [components, onUpdateComponents]);
+
+  const createNewComponent = (type: PageComponent['type'], x: number, y: number): PageComponent => {
+    const baseProps = {
+      id: uuidv4(),
+      position: { x, y },
+      size: { width: 200, height: 100 },
+      zIndex: 1
+    };
+
+    switch (type) {
+      case 'button':
+        return { ...baseProps, type: 'button', settings: { text: 'Click me', color: '#000' } } as PageComponentButton;
+      case 'text':
+        return { ...baseProps, type: 'text', settings: { text: 'New Text' } } as PageComponentTexto;
+      case 'image':
+        return { ...baseProps, type: 'image', settings: { src: '' } } as PageComponentImagem;
+      case 'menu':
+        return { ...baseProps, type: 'menu', settings: { links: [] } } as PageComponentMenu;
+      case 'video':
+        return { ...baseProps, type: 'video', settings: { url: '' } } as PageComponentVideo;
+      case 'form':
+        return { ...baseProps, type: 'form', settings: { fields: [], submitButtonText: 'Submit' } } as PageComponentForm;
+      case 'carousel':
+        return { ...baseProps, type: 'carousel', settings: { images: [], autoPlay: true, interval: 5000 } } as PageComponentCarousel;
+      case 'map':
+        return { ...baseProps, type: 'map', settings: { latitude: 0, longitude: 0, zoom: 1 } } as PageComponentMap;
+      default:
+        throw new Error(`Unknown component type: ${type}`);
+    }
+  };
 
   const snapToGrid = (x: number, y: number) => {
     const snappedX = Math.round(x / gridSize) * gridSize;
@@ -148,18 +165,22 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
             </NumberInputStepper>
           </NumberInput>
         </HStack>
-        <Box
-          ref={workAreaRef}
-          flex={1}
-          width="100%"
-          bg="white"
-          borderRadius="md"
-          boxShadow="md"
-          position="relative"
-          overflow="auto"
-          backgroundImage={showGrid ? `linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-                                       linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)` : 'none'}
-          backgroundSize={`${gridSize}px ${gridSize}px`}
+        <Rnd
+          size={{ width: frameSize.width, height: frameSize.height }}
+          onResizeStop={(e, direction, ref) => {
+            setFrameSize({
+              width: ref.offsetWidth,
+              height: ref.offsetHeight,
+            });
+          }}
+          minWidth={200}
+          minHeight={200}
+          bounds="parent"
+          style={{
+            background: frameColor,
+            borderRadius: "8px",
+            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          }}
         >
           {components.map((component) => (
             <DraggableComponent
@@ -173,7 +194,7 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
               gridSize={gridSize}
             />
           ))}
-        </Box>
+        </Rnd>
       </Box>
       {showLayers && (
         <VStack width="200px" bg="gray.100" p={4} overflowY="auto">

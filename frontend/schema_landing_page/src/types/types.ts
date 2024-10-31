@@ -1,7 +1,5 @@
 // src/types/types.ts
 
-import { ReactNode } from 'react';
-
 export interface Position {
   x: number;
   y: number;
@@ -16,6 +14,7 @@ export interface BasePageComponent {
     height: number;
   };
   zIndex: number;
+  content?: string; // Corrigido para ser string | undefined
 }
 
 export interface PageComponentButton extends BasePageComponent {
@@ -93,11 +92,3 @@ export type PageComponent =
   PageComponentForm |
   PageComponentCarousel |
   PageComponentMap;
-
-export interface PageComponent {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-  content: ReactNode;
-}
