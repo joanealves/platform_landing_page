@@ -7,7 +7,8 @@ import { useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import DraggableComponent from './DraggableComponent';
 import { FiAlignLeft, FiAlignCenter, FiAlignRight, FiLayers, FiGrid } from 'react-icons/fi';
-import { PageComponent, PageComponentButton, PageComponentTexto, PageComponentImagem, PageComponentMenu, PageComponentVideo, PageComponentForm, PageComponentCarousel, PageComponentMap } from '../types/types';
+import { PageComponent } from '../types/types';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 interface WorkAreaProps {
   components: PageComponent[];
@@ -58,26 +59,27 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
       id: uuidv4(),
       position: { x, y },
       size: { width: 200, height: 100 },
-      zIndex: 1
+      zIndex: 1,
+      content: type === 'text' ? 'New Text' : undefined,
     };
 
     switch (type) {
       case 'button':
-        return { ...baseProps, type: 'button', settings: { text: 'Click me', color: '#000' } } as PageComponentButton;
+        return { ...baseProps, type: 'button', settings: { text: 'Click me', color: '#000' } };
       case 'text':
-        return { ...baseProps, type: 'text', settings: { text: 'New Text' } } as PageComponentTexto;
+        return { ...baseProps, type: 'text', settings: { text: 'New Text' } };
       case 'image':
-        return { ...baseProps, type: 'image', settings: { src: '' } } as PageComponentImagem;
+        return { ...baseProps, type: 'image', settings: { src: '' } };
       case 'menu':
-        return { ...baseProps, type: 'menu', settings: { links: [] } } as PageComponentMenu;
+        return { ...baseProps, type: 'menu', settings: { links: [] } };
       case 'video':
-        return { ...baseProps, type: 'video', settings: { url: '' } } as PageComponentVideo;
+        return { ...baseProps, type: 'video', settings: { url: '' } };
       case 'form':
-        return { ...baseProps, type: 'form', settings: { fields: [], submitButtonText: 'Submit' } } as PageComponentForm;
+        return { ...baseProps, type: 'form', settings: { fields: [], submitButtonText: 'Submit' } };
       case 'carousel':
-        return { ...baseProps, type: 'carousel', settings: { images: [], autoPlay: true, interval: 5000 } } as PageComponentCarousel;
+        return { ...baseProps, type: 'carousel', settings: { images: [], autoPlay: true, interval: 5000 } };
       case 'map':
-        return { ...baseProps, type: 'map', settings: { latitude: 0, longitude: 0, zoom: 1 } } as PageComponentMap;
+        return { ...baseProps, type: 'map', settings: { latitude: 0, longitude: 0, zoom: 1 } };
       default:
         throw new Error(`Unknown component type: ${type}`);
     }
@@ -165,36 +167,60 @@ const WorkArea: React.FC<WorkAreaProps> = ({ components, onUpdateComponents, onS
             </NumberInputStepper>
           </NumberInput>
         </HStack>
-        <Rnd
-          size={{ width: frameSize.width, height: frameSize.height }}
-          onResizeStop={(e, direction, ref) => {
-            setFrameSize({
-              width: ref.offsetWidth,
-              height: ref.offsetHeight,
-            });
-          }}
-          minWidth={200}
-          minHeight={200}
-          bounds="parent"
-          style={{
-            background: frameColor,
-            borderRadius: "8px",
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          {components.map((component) => (
-            <DraggableComponent
-              key={component.id}
-              component={component}
-              onSelect={() => onSelectComponent(component)}
-              onMove={(x, y) => updateComponentPosition(component.id, x, y)}
-              onResize={(size) => updateComponentSize(component.id, size)}
-              workAreaRef={workAreaRef}
-              showGuides={showGuides}
-              gridSize={gridSize}
-            />
-          ))}
-        </Rnd>
+        <TransformWrapper>
+          <TransformComponent>
+            <Rnd
+              default={{
+                x: 0,
+                y: 0,
+                width: frameSize.width,
+                height: frameSize.height,
+              }}
+              size={{ width: frameSize.width, height: frameSize.height }}
+              onResizeStop={(e, direction, ref) => {
+                setFrameSize({
+                  width: ref.offsetWidth,
+                  height: ref.offsetHeight,
+                });
+              }}
+              minWidth={200}
+              minHeight={100}
+              bounds="parent"
+              style={{
+                border: `2px solid ${frameColor}`,
+                backgroundColor: frameColor,
+                borderRadius: '8px',
+              }}
+            >
+              <Box
+                ref={workAreaRef}
+                flex={1}
+                borderRadius="md"
+                boxShadow="md"
+                position="relative"
+                overflow="auto"
+                backgroundImage={showGrid ? `linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                                             linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)` : 'none'}
+                backgroundSize={`${gridSize}px ${gridSize}px`}
+                width="100%"
+                height="100%"
+              >
+                {components.map((component) => (
+                  <DraggableComponent
+                    key={component.id}
+                    component={component}
+                    onSelect={() => onSelectComponent(component)}
+                    onMove={(x, y) => updateComponentPosition(component.id, x, y)}
+                    onResize={(size) => updateComponentSize(component.id, size)}
+                    workAreaRef={workAreaRef}
+                    showGuides={showGuides}
+                    gridSize={gridSize}
+                  />
+                ))}
+              </Box>
+            </Rnd>
+          </TransformComponent>
+        </TransformWrapper>
       </Box>
       {showLayers && (
         <VStack width="200px" bg="gray.100" p={4} overflowY="auto">

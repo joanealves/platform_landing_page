@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Text, Button } from '@chakra-ui/react';
+import { Box, Text, Button, Input, VStack } from '@chakra-ui/react';
 import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/core';
 
 interface PageComponent {
   id: string;
   content: string;
+  properties?: {
+    [key: string]: string | number;
+  };
 }
 
 const DraggableItem = ({ id, content }: PageComponent) => {
@@ -48,22 +51,47 @@ const DroppableArea = ({ children }: { children: React.ReactNode }) => {
 
 const ComponentsPage = () => {
   const [pageComponents, setPageComponents] = useState<PageComponent[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
 
-  // Função para adicionar componentes ao board quando soltos
   const handleDrop = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    // Verifica se o item foi solto na área correta
     if (over && over.id === 'droppable') {
-      const newComponent = { id: String(active.id), content: String(active.id) };
+      const newComponent: PageComponent = {
+        id: String(active.id),
+        content: `Novo ${String(active.id)}`,
+        properties: {},
+      };
       setPageComponents((prevComponents) => [...prevComponents, newComponent]);
     }
   };
 
-  // Função para remover componentes do board
   const handleRemoveComponent = (id: string) => {
     setPageComponents((prevComponents) =>
       prevComponents.filter((component) => component.id !== id)
+    );
+    if (selectedComponent?.id === id) {
+      setSelectedComponent(null);
+    }
+  };
+
+  const handleSelectComponent = (component: PageComponent) => {
+    setSelectedComponent(component);
+  };
+
+  const handleUpdateComponent = (property: string, value: string | number) => {
+    if (!selectedComponent) return;
+
+    setPageComponents((prevComponents) =>
+      prevComponents.map((component) =>
+        component.id === selectedComponent.id
+          ? { ...component, properties: { ...component.properties, [property]: value } }
+          : component
+      )
+    );
+
+    setSelectedComponent((prev) =>
+      prev ? { ...prev, properties: { ...prev.properties, [property]: value } } : null
     );
   };
 
@@ -87,9 +115,10 @@ const ComponentsPage = () => {
               border="1px dashed #ccc"
               mb={4}
               position="relative"
+              onClick={() => handleSelectComponent(comp)}
+              cursor="pointer"
             >
               <Text>{comp.content}</Text>
-              {/* Botão para remover o componente */}
               <Button
                 size="xs"
                 colorScheme="red"
@@ -104,6 +133,42 @@ const ComponentsPage = () => {
           ))}
         </DroppableArea>
       </DndContext>
+
+      {selectedComponent && (
+        <Box mt={8} p={4} border="1px solid #ccc" borderRadius="md">
+          <Text fontSize="lg" mb={4}>Propriedades do Componente</Text>
+          {selectedComponent.content === 'Botão' && (
+            <VStack align="start">
+              <Text>Texto do Botão:</Text>
+              <Input
+                value={(selectedComponent.properties?.text as string) || ''}
+                onChange={(e) => handleUpdateComponent('text', e.target.value)}
+                placeholder="Digite o texto do botão"
+              />
+            </VStack>
+          )}
+          {selectedComponent.content === 'Texto' && (
+            <VStack align="start">
+              <Text>Texto:</Text>
+              <Input
+                value={(selectedComponent.properties?.text as string) || ''}
+                onChange={(e) => handleUpdateComponent('text', e.target.value)}
+                placeholder="Digite o texto"
+              />
+            </VStack>
+          )}
+          {selectedComponent.content === 'Imagem' && (
+            <VStack align="start">
+              <Text>URL da Imagem:</Text>
+              <Input
+                value={(selectedComponent.properties?.src as string) || ''}
+                onChange={(e) => handleUpdateComponent('src', e.target.value)}
+                placeholder="Digite a URL da imagem"
+              />
+            </VStack>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };
